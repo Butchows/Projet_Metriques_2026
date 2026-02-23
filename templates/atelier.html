@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Atelier Météo — Lisbonne</title>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px;
+    }
+
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+
+    #chart_div {
+      width: 100%;
+      max-width: 1000px;
+      height: 500px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Histogramme des températures, vent et pluie à Lisbonne</h1>
+  <div id="chart_div"></div>
+
+  <script type="text/javascript">
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(fetchAndDraw);
+
+    async function fetchAndDraw() {
+      try {
+        const response = await fetch('/lisbonne');
+        const json = await response.json();
+
+        const data = new google.visualization.DataTable();
+
+        // 3 colonnes = 3 séries
+        data.addColumn('number', 'Température (°C)');
+        data.addColumn('number', 'Vitesse du vent (km/h)');
+        data.addColumn('number', 'Précipitations (mm)');
+
+        // On remplit chaque colonne séparément
+        json.forEach(item => {
+          data.addRow([
+            item.temperature_c,
+            item.vitesse_du_vent_km_h,
+            item.pluie_mm
+          ]);
+        });
+
+        const options = {
+          title: 'Distribution Température / Vent / Pluie à Lisbonne',
+          legend: { position: 'bottom' },
+          colors: ['#6c63ff', '#00b894', '#d63031'], // bleu, vert, rouge
+          hAxis: { title: 'Valeur' },
+          vAxis: { title: 'Nombre d\'occurrences' },
+          histogram: { bucketSize: 2 }
+        };
+
+        const chart = new google.visualization.Histogram(document.getElementById('chart_div'));
+        chart.draw(data, options);
+
+      } catch (err) {
+        console.error("Erreur lors de la récupération des données :", err);
+      }
+    }
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Atelier Météo — Lisbonne</title>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px;
+    }
+
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+
+    #chart_div {
+      width: 100%;
+      max-width: 1000px;
+      height: 500px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Histogramme des températures, vent et pluie à Lisbonne</h1>
+  <div id="chart_div"></div>
+
+  <script type="text/javascript">
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(fetchAndDraw);
+
+    async function fetchAndDraw() {
+      try {
+        const response = await fetch('/lisbonne');
+        const json = await response.json();
+
+        const data = new google.visualization.DataTable();
+
+        // 3 colonnes = 3 séries
+        data.addColumn('number', 'Température (°C)');
+        data.addColumn('number', 'Vitesse du vent (km/h)');
+        data.addColumn('number', 'Précipitations (mm)');
+
+        // On remplit chaque colonne séparément
+        json.forEach(item => {
+            if (item.temperature_c != null && item.vitesse_du_vent_km_h != null && item.pluie_mm != null) {
+                data.addRow([
+                    item.temperature_c,
+                    item.vitesse_du_vent_km_h,
+                    item.pluie_mm
+                ]);
+            }
+        });
+
+        const options = {
+          title: 'Distribution Température / Vent / Pluie à Lisbonne',
+          legend: { position: 'bottom' },
+          colors: ['#6c63ff', '#00b894', '#d63031'], // bleu, vert, rouge
+          hAxis: { title: 'Valeur' },
+          vAxis: { title: 'Nombre d\'occurrences' },
+          histogram: { bucketSize: 2 }
+        };
+
+        const chart = new google.visualization.Histogram(document.getElementById('chart_div'));
+        chart.draw(data, options);
+
+      } catch (err) {
+        console.error("Erreur lors de la récupération des données :", err);
+      }
+    }
+  </script>
+</body>
+</html>
