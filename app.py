@@ -10,7 +10,7 @@ def hello_world():
 # Déposez votre code à partir d'ici :
 @app.route("/contact")
 def MaPremiereAPI():
-    return "<h2>Ma page de contact</h2>"
+    return render_template('contact.html')
 
 @app.get("/paris")
 def api_paris():
@@ -30,7 +30,13 @@ def api_paris():
 
     return jsonify(result)
 
+@app.route("/rapport")
+def mongraphique():
+    return render_template("graphique.html")
 
+@app.route("/histogramme")
+def histogramme():
+    return render_template("graphique2.html")
 
 # Ne rien mettre après ce commentaire
     

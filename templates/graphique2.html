@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Histogramme Températures Paris</title>
+
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; }
+    #chart { width: 100%; height: 520px; }
+    #status { margin-top: 12px; white-space: pre-wrap; }
+  </style>
+</head>
+
+<body>
+  <h1>Histogramme des températures — Paris</h1>
+  <div id="chart"></div>
+  <div id="status"></div>
+
+  <script>
+    google.charts.load("current", {packages:["corechart"]});
+    google.charts.setOnLoadCallback(init);
+
+    let cachedTemps = null;
+
+    async function init() {
+      try {
+        const temps = await fetchParisData();
+        cachedTemps = temps;
+        drawChart(temps);
+
+        window.addEventListener('resize', () => {
+          if (cachedTemps) drawChart(cachedTemps);
+        });
+      } catch (err) {
+        showStatus("Erreur: " + (err?.message || err));
+        console.error(err);
+      }
+    }
+
+    async function fetchParisData() {
+      const res = await fetch('/paris', { headers: { 'Accept': 'application/json' } });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status} sur /paris`);
+      }
+
+      const json = await res.json();
+
+      // On ne garde que les températures
+      const temps = json.map(p => Number(p.temperature_c));
+
+      return temps;
+    }
+
+    function drawChart(temps) {
+
+        const data = new google.visualization.DataTable();
+
+        // Deux colonnes (2 séries)
+        data.addColumn('number', 'Température > 8°C');
+        data.addColumn('number', 'Température ≤ 8°C');
+
+        temps.forEach(t => {
+          if (t > 8) {
+            data.addRow([t, null]);   // Bleu
+          } else {
+            data.addRow([null, t]);   // Violet
+          }
+      });
+
+    const options = {
+        title: 'Distribution des températures à Paris',
+        legend: { position: 'none' },
+        colors: ['blue', 'purple'],
+        hAxis: {
+          title: 'Température (°C)'
+        },
+        vAxis: {
+          title: 'Nombre d\'occurrences'
+        }
+    };
+
+    const chart = new google.visualization.Histogram(
+      document.getElementById('chart')
+      );
+
+      chart.draw(data, options);
+
+      showStatus(`OK — ${temps.length} valeurs chargées depuis /paris`);
+    }
+
+    function showStatus(msg) {
+      document.getElementById('status').textContent = msg;
+    }
+  </script>
+</body>
+</html>
